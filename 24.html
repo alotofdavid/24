@@ -1,0 +1,176 @@
+
+<html>
+<head>
+<title>24</title>
+<script type="text/javascript">
+var inGame = false;
+var size;
+var gameState;
+var emptyTile;
+var LEFT=0;
+var UP=1;
+var RIGHT=2;
+var DOWN=3;
+function init() {
+  document.getElementById("board").innerHTML = "";
+  console.log('initializing');
+  size = 5;
+  loadBoard();
+  inGame = true;
+}
+
+function loadBoard() {
+  gameState = [];
+  var count = 1;
+  var div;
+  for (var i=0; i<size; i++) {
+    for (var j=0; j<size; j++) {
+      div = document.createElement("div");
+      div.innerHTML = count;
+      div.classList.add("tile");
+      div.id = count;
+      gameState.push(div);
+      count++;
+      if (count===size*size) {
+        div = document.createElement("div");
+        div.classList.add("tile");
+        div.classList.add("blank");
+        gameState.push(div);
+        emptyTile = count-1; //count is 1 indexed, but the gameState array is 0 indexed
+        break;
+      }
+    } 
+  }
+  shuffle();
+}
+
+function drawBoard() {
+  game = document.getElementById("board");
+  for (var i=0; i<gameState.length; i++) {
+    game.appendChild(gameState[i]);
+    if ((i+1)%5===0) { 
+      var clear = document.createElement("div")
+      clear.classList.add("clear")
+      game.appendChild(clear);
+    }
+  }
+  if (inGame) check();
+}
+
+function range(start, end) {
+  var arr = [];
+  for (var i=start; i<=end; i++) {
+    arr.push(i);
+  }
+  return arr;
+}
+
+function keypress(code) { 
+  if (code===37) shiftLeft();
+  if (code===38) shiftUp();
+  if (code===39) shiftRight();
+  if (code===40) shiftDown();
+
+  if (code===32 && !inGame) init();
+}
+
+function shiftLeft(suppress) { 
+  if (emptyTile%size!=size-1) {
+    swap(gameState,emptyTile,emptyTile+1);
+    emptyTile = emptyTile+1;
+    if (!suppress) drawBoard();
+  }
+}
+
+function shiftUp(suppress) { 
+  if (Math.floor(emptyTile/size)!=size-1) {
+    swap(gameState,emptyTile,emptyTile+size);
+    emptyTile = emptyTile+size;
+    if (!suppress) drawBoard();
+  }
+}
+
+function shiftRight(suppress) { 
+  if (emptyTile%5!=0) {
+    swap(gameState,emptyTile,emptyTile-1);
+    emptyTile = emptyTile-1;
+    if (!suppress) drawBoard();
+  }
+}
+
+function shiftDown(suppress) { 
+  if (Math.floor(emptyTile/size)!=0) {
+    swap(gameState,emptyTile,emptyTile-size);
+    emptyTile = emptyTile-size;
+    if (!suppress) drawBoard();
+  }
+}
+
+function shuffle() { 
+  var rand;
+  for (var i=0; i<1000; i++) {
+    rand = Math.floor(Math.random()*4);
+    switch (rand) {
+      case 0:
+        shiftLeft(true);
+        continue;
+      case 1:
+        shiftRight(true);
+        continue;
+      case 2:
+        shiftUp(true);
+        continue;
+      case 3:
+        shiftDown(true);
+        continue;
+    }
+  }
+  drawBoard();
+}
+
+function swap(arr, i, j) {
+  var temp = arr[i];
+  arr[i] = arr[j];
+  arr[j] = temp;
+}
+
+function check() {
+  for (var i=0; i<gameState.length; i++) { 
+    if (gameState[i].id!=i+1) return;
+    if (i+1===size*size-1) break;
+  }
+  document.body.innerHTML += "<br> Congratulations! You won!";
+  gameState = [];
+  inGame = false;
+}
+
+</script>
+
+<style type="text/css">
+.tile.blank {
+  background-color: #FFF;
+}
+.clear {
+  clear:left;
+}
+.tile {
+  background-color: #666;
+  color: #FFF;
+  padding:20px;
+  line-height: 10px;
+  height:50px;
+  width:50px;
+  text-align: center;
+  float:left;
+  border:1px solid #000;
+}
+body {
+ 
+}
+</style>
+</head>
+
+<body onload="init()" onkeydown="keypress(event.keyCode)">
+<div id="board">&nbsp;</span>
+</body>
+</html>
