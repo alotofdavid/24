@@ -7,15 +7,23 @@ var inGame = false;
 var size;
 var gameState;
 var emptyTile;
-var LEFT=0;
-var UP=1;
-var RIGHT=2;
-var DOWN=3;
 function init() {
-  document.getElementById("board").innerHTML = "";
   console.log('initializing');
   size = 5;
   loadBoard();
+  drawBoard();
+}
+
+function testShuffle() {
+  shiftRight();
+  drawBoard();
+}
+
+function startGame() {
+  document.getElementById("board").innerHTML = "";
+  loadBoard();
+  //shuffle();
+  testShuffle();
   inGame = true;
 }
 
@@ -41,7 +49,6 @@ function loadBoard() {
       }
     } 
   }
-  shuffle();
 }
 
 function drawBoard() {
@@ -71,7 +78,7 @@ function keypress(code) {
   if (code===39) shiftRight();
   if (code===40) shiftDown();
 
-  if (code===32 && !inGame) init();
+  if (code===32 && !inGame) startGame();
 }
 
 function shiftLeft(suppress) { 
@@ -139,7 +146,7 @@ function check() {
     if (gameState[i].id!=i+1) return;
     if (i+1===size*size-1) break;
   }
-  document.body.innerHTML += "<br> Congratulations! You won!";
+  document.body.innerHTML += "<br> Congratulations! You won! Press the space bar to play again!";
   gameState = [];
   inGame = false;
 }
@@ -154,11 +161,10 @@ function check() {
   clear:left;
 }
 .tile {
-  background-color: #666;
+  background-color: #339933;
   color: #FFF;
-  padding:20px;
-  line-height: 10px;
   height:50px;
+  line-height: 50px;
   width:50px;
   text-align: center;
   float:left;
