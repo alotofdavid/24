@@ -7,6 +7,10 @@ var inGame = false;
 var size;
 var gameState;
 var emptyTile;
+var updateTimerInterval;
+var startTime;
+var curTime;
+var times = [];
 function init() {
   console.log('initializing');
   size = 5;
@@ -24,7 +28,8 @@ function startGame() {
   loadBoard();
   //shuffle();
   testShuffle();
-  inGame = true;
+  startTimer();
+  inGame = true; 
 }
 
 function loadBoard() {
@@ -144,11 +149,38 @@ function swap(arr, i, j) {
 function check() {
   for (var i=0; i<gameState.length; i++) { 
     if (gameState[i].id!=i+1) return;
-    if (i+1===size*size-1) break;
+    if (i+1===size*size-1) finish();
   }
-  document.body.innerHTML += "<br> Congratulations! You won! Press the space bar to play again!";
-  gameState = [];
+}
+
+function finish() {
+  stopTimer();
+}
+
+function startTimer() {
+  if (!inGame) {
+    startTime = new Date();
+    updateTimerInterval = setInterval(updateTimer, 10);
+  }
+}
+
+function updateTimer() {
+  curTime = new Date();
+  document.getElementById('timer').innerHTML = (curTime.getTime() - startTime.getTime())/1000;
+  return time;
+}
+
+function stopTimer(update) {
+  clearInterval(updateTimerInterval);
+  var time = (curTime.getTime() - startTime.getTime())/1000;
+  times.push(time);
   inGame = false;
+  updateTimeHistory();
+}
+
+function updateTimeHistory() {
+  string = times.join(", ");
+  document.getElementById("times").innerHTML = string;
 }
 
 </script>
@@ -170,13 +202,17 @@ function check() {
   float:left;
   border:1px solid #000;
 }
-body {
- 
+#timer { 
+  padding:5px;
+  font-size:1.5em;
 }
 </style>
 </head>
 
 <body onload="init()" onkeydown="keypress(event.keyCode)">
-<div id="board">&nbsp;</span>
+<div id="board"></div>
+<div id="timer"></div>
+<h2>Times</h2>
+<div id="times"></div>
 </body>
 </html>
