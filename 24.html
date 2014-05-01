@@ -1,15 +1,16 @@
-
 <html>
 <head>
 <title>24</title>
 <script type="text/javascript">
 var inGame = false;
+var inspection = false;
 var size;
 var gameState;
 var emptyTile;
 var updateTimerInterval;
 var startTime;
 var curTime;
+var bestTime = 1000000
 var times = [];
 function init() {
   console.log('initializing');
@@ -27,7 +28,7 @@ function startGame() {
   document.getElementById("board").innerHTML = "";
   loadBoard();
   shuffle();
-  startTimer();
+  inspection = true;
   inGame = true; 
 }
 
@@ -77,6 +78,10 @@ function range(start, end) {
 }
 
 function keypress(code) { 
+  if (inspection && (code===37 || code===38 || code===39 || code ===40)) {
+    startTimer();
+    inspection = false;
+  }
   if (code===37) shiftLeft();
   if (code===38) shiftUp();
   if (code===39) shiftRight();
@@ -148,38 +153,58 @@ function swap(arr, i, j) {
 function check() {
   for (var i=0; i<gameState.length; i++) { 
     if (gameState[i].id!=i+1) return;
-    if (i+1===size*size-1) finish();
+    if (i+1===size*size-1) stopTimer();
   }
-}
-
-function finish() {
-  stopTimer();
 }
 
 function startTimer() {
-  if (!inGame) {
-    startTime = new Date();
-    updateTimerInterval = setInterval(updateTimer, 10);
-  }
+  startTime = new Date();
+  updateTimerInterval = setInterval(updateTimer, 10);
 }
 
 function updateTimer() {
   curTime = new Date();
   document.getElementById('timer').innerHTML = (curTime.getTime() - startTime.getTime())/1000;
-  return time;
 }
 
-function stopTimer(update) {
+function stopTimer() {
   clearInterval(updateTimerInterval);
+  curTime = new Date();
+  console.log(curTime, startTime);
   var time = (curTime.getTime() - startTime.getTime())/1000;
   times.push(time);
   inGame = false;
+  update();
+}
+
+function update() {
   updateTimeHistory();
+  updateStats();
 }
 
 function updateTimeHistory() {
   string = times.join(", ");
   document.getElementById("times").innerHTML = string;
+}
+function updateStats() {
+  if (times[times.length-1] < bestTime) {
+    bestTime = times[times.length-1];
+  }
+  writeStats();
+}
+
+
+function writeStats() {
+
+  var string = "";
+  //best time
+  string += "Best time: "
+  string += bestTime
+  //best average of 5
+
+
+  //best average of 12
+  document.getElementById("stats").innerHTML = string;
 }
 
 </script>
@@ -213,5 +238,7 @@ function updateTimeHistory() {
 <div id="timer"></div>
 <h2>Times</h2>
 <div id="times"></div>
+<h2>Stats</h2>
+<div id="stats"></div>
 </body>
 </html>
