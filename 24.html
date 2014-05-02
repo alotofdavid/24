@@ -4,30 +4,32 @@
 <script type="text/javascript">
 var inGame = false;
 var inspection = false;
-var size;
+var size = 4;
 var gameState;
 var emptyTile;
 var updateTimerInterval;
 var startTime;
 var curTime;
-var bestTime = 1000000
+var bestTime = 1000000;
+var bestAvg = 1000000;
 var times = [];
-function init() {
-  console.log('initializing');
-  size = 5;
-  loadBoard();
-  drawBoard();
-}
 
-function testShuffle() {
-  shiftRight();
+
+/*
+    GAME INITIALIZATION
+*/
+
+function init() {
+  loadBoard();
   drawBoard();
 }
 
 function startGame() {
   document.getElementById("board").innerHTML = "";
+  size = parseInt(document.getElementById("size").value);
+  console.log(size);
   loadBoard();
-  shuffle();
+  testShuffle();
   inspection = true;
   inGame = true; 
 }
@@ -60,7 +62,7 @@ function drawBoard() {
   game = document.getElementById("board");
   for (var i=0; i<gameState.length; i++) {
     game.appendChild(gameState[i]);
-    if ((i+1)%5===0) { 
+    if ((i+1)%size===0) { 
       var clear = document.createElement("div")
       clear.classList.add("clear")
       game.appendChild(clear);
@@ -69,57 +71,10 @@ function drawBoard() {
   if (inGame) check();
 }
 
-function range(start, end) {
-  var arr = [];
-  for (var i=start; i<=end; i++) {
-    arr.push(i);
-  }
-  return arr;
-}
 
-function keypress(code) { 
-  if (inspection && (code===37 || code===38 || code===39 || code ===40)) {
-    startTimer();
-    inspection = false;
-  }
-  if (code===37) shiftLeft();
-  if (code===38) shiftUp();
-  if (code===39) shiftRight();
-  if (code===40) shiftDown();
-
-  if (code===32 && !inGame) startGame();
-}
-
-function shiftLeft(suppress) { 
-  if (emptyTile%size!=size-1) {
-    swap(gameState,emptyTile,emptyTile+1);
-    emptyTile = emptyTile+1;
-    if (!suppress) drawBoard();
-  }
-}
-
-function shiftUp(suppress) { 
-  if (Math.floor(emptyTile/size)!=size-1) {
-    swap(gameState,emptyTile,emptyTile+size);
-    emptyTile = emptyTile+size;
-    if (!suppress) drawBoard();
-  }
-}
-
-function shiftRight(suppress) { 
-  if (emptyTile%5!=0) {
-    swap(gameState,emptyTile,emptyTile-1);
-    emptyTile = emptyTile-1;
-    if (!suppress) drawBoard();
-  }
-}
-
-function shiftDown(suppress) { 
-  if (Math.floor(emptyTile/size)!=0) {
-    swap(gameState,emptyTile,emptyTile-size);
-    emptyTile = emptyTile-size;
-    if (!suppress) drawBoard();
-  }
+function testShuffle() {
+  shiftRight();
+  drawBoard();
 }
 
 function shuffle() { 
@@ -144,11 +99,59 @@ function shuffle() {
   drawBoard();
 }
 
-function swap(arr, i, j) {
-  var temp = arr[i];
-  arr[i] = arr[j];
-  arr[j] = temp;
+/*
+    USER INPUT
+*/
+
+function keypress(code) { 
+  if (inspection && (code===37 || code===38 || code===39 || code ===40)) {
+    startTimer();
+    inspection = false;
+  }
+  if (code===37) shiftLeft();
+  if (code===38) shiftUp();
+  if (code===39) shiftRight();
+  if (code===40) shiftDown();
+
+  if (code===32 && !inGame) startGame();
 }
+
+/*
+    GAME FUNCTIONS
+*/
+
+function shiftLeft(suppress) { 
+  if (emptyTile%size!=size-1) {
+    swap(gameState,emptyTile,emptyTile+1);
+    emptyTile = emptyTile+1;
+    if (!suppress) drawBoard();
+  }
+}
+
+function shiftUp(suppress) { 
+  if (Math.floor(emptyTile/size)!=size-1) {
+    swap(gameState,emptyTile,emptyTile+size);
+    emptyTile = emptyTile+size;
+    if (!suppress) drawBoard();
+  }
+}
+
+function shiftRight(suppress) { 
+  if (emptyTile%size!=0) {
+    swap(gameState,emptyTile,emptyTile-1);
+    emptyTile = emptyTile-1;
+    if (!suppress) drawBoard();
+  }
+}
+
+function shiftDown(suppress) { 
+  if (Math.floor(emptyTile/size)!=0) {
+    swap(gameState,emptyTile,emptyTile-size);
+    emptyTile = emptyTile-size;
+    if (!suppress) drawBoard();
+  }
+}
+
 
 function check() {
   for (var i=0; i<gameState.length; i++) { 
@@ -156,6 +159,10 @@ function check() {
     if (i+1===size*size-1) stopTimer();
   }
 }
+
+/* 
+    TIMING 
+*/
 
 function startTimer() {
   startTime = new Date();
@@ -169,7 +176,6 @@ function updateTimer() {
 
 function stopTimer() {
   clearInterval(updateTimerInterval);
-  curTime = new Date();
   console.log(curTime, startTime);
   var time = (curTime.getTime() - startTime.getTime())/1000;
   times.push(time);
@@ -177,35 +183,99 @@ function stopTimer() {
   update();
 }
 
+function parseTime(time) {
+  return null;
+}
+
+
+/*
+    STATISTICS
+*/
+
 function update() {
   updateTimeHistory();
   updateStats();
 }
 
 function updateTimeHistory() {
-  string = times.join(", ");
-  document.getElementById("times").innerHTML = string;
+  times_div = document.getElementById("times");
+  while(times_div.firstChild) {
+    times_div.removeChild(times_div.firstChild);
+  }
+  for (var i = 0; i<times.length; i++) {
+    time = document.createElement("span");
+    time.appendChild(document.createTextNode(times[i]));
+    times_div.appendChild(time);
+    if (i != times.length-1) {
+      times_div.appendChild(document.createTextNode(", "));
+    }
+  }
 }
+
 function updateStats() {
+  //best time
   if (times[times.length-1] < bestTime) {
     bestTime = times[times.length-1];
   }
+  //avg
+  if (times.length==5) {
+    bestAvg = calculateAvg(times,0,5);
+  }
+  if (times.length >= 5) { 
+    currAvg = calculateAvg(times,times.length-5,times.length);
+    if (currAvg < bestAvg) bestAvg = currAvg;
+  }
   writeStats();
 }
-
 
 function writeStats() {
 
   var string = "";
   //best time
-  string += "Best time: "
-  string += bestTime
+  string += "Best time: ";
+  string += bestTime;
+  string += "<br>";
   //best average of 5
-
-
+  if (times.length>=5) {
+  string += "Best average of 5: ";
+  string += bestAvg;
+  string += "<br>";
+  //current average of 5
+  string += "Current average of 5: ";
+  string += currAvg;
+  string += "<br>";
+}
   //best average of 12
   document.getElementById("stats").innerHTML = string;
 }
+
+function calculateAvg(array, start, end) {
+  solves = array.slice(start,end);
+  var sum = solves.reduce(function(a,b){return a + b;});
+  var max = Math.max.apply(null,solves);
+  var min = Math.min.apply(null,solves);
+  return ((sum - max - min)/3).toFixed(3);
+}
+
+/*
+    USEFUL FUNCTIONS
+*/
+
+function swap(arr, i, j) {
+  var temp = arr[i];
+  arr[i] = arr[j];
+  arr[j] = temp;
+}
+
+
+function range(start, end) {
+  var arr = [];
+  for (var i=start; i<=end; i++) {
+    arr.push(i);
+  }
+  return arr;
+}
+
 
 </script>
 
@@ -239,6 +309,17 @@ function writeStats() {
 <h2>Times</h2>
 <div id="times"></div>
 <h2>Stats</h2>
-<div id="stats"></div>
+<div id="stats" width="50%"></div>
+<h2>Options</h2>
+<div id="options">
+  Size
+<select id="size">
+  <option value=3>3</option>
+  <option value=4 selected="selected">4</option>
+  <option value=5>5</option>
+  <option value=6>6</option>
+  <option value=7>7</option>
+</select>
+</div>
 </body>
 </html>
