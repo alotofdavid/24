@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>24</title>
+<title>15 Sim</title>
 <script type="text/javascript">
 var inGame = false;
 var inspection = false;
@@ -13,7 +13,8 @@ var curTime;
 var bestTime = 1000000;
 var bestAvg = 1000000;
 var times = [];
-
+var turns;
+var tps;
 
 /*
     GAME INITIALIZATION
@@ -23,7 +24,7 @@ function init() {
   loadBoard();
   drawBoard();
   options = document.getElementById("options");
-  var string = "";
+  var string = "Size: ";
   string += "<select id=\"size\"><option value=3>3</option><option value=4 selected=\"selected\">4</option>";
   for (var i = 5; i<10; i++) { 
     string += "<option value="+i+">"+i+"</option>";
@@ -35,11 +36,17 @@ function init() {
 function startGame() {
   document.getElementById("board").innerHTML = "";
   size = parseInt(document.getElementById("size").value);
-  console.log(size);
   loadBoard();
   shuffle();
+  turns = 0;
   inspection = true;
   inGame = true; 
+}
+
+function restartGame() {
+  clearInterval(updateTimerInterval);
+  document.getElementById('timer').innerHTML = "0.00";
+  startGame();
 }
 
 function loadBoard() {
@@ -122,6 +129,7 @@ function keypress(code) {
   if (code===40||code===83||code==75) shiftDown();
 
   if (code===32 && !inGame) startGame();
+  if (code===13) restartGame();
 }
 
 /*
@@ -134,6 +142,7 @@ function shiftLeft(suppress) {
     emptyTile = emptyTile+1;
     if (!suppress) drawBoard();
   }
+  turns++;
 }
 
 function shiftUp(suppress) { 
@@ -142,6 +151,7 @@ function shiftUp(suppress) {
     emptyTile = emptyTile+size;
     if (!suppress) drawBoard();
   }
+  turns++;
 }
 
 function shiftRight(suppress) { 
@@ -150,6 +160,7 @@ function shiftRight(suppress) {
     emptyTile = emptyTile-1;
     if (!suppress) drawBoard();
   }
+  turns++;
 }
 
 function shiftDown(suppress) { 
@@ -158,6 +169,7 @@ function shiftDown(suppress) {
     emptyTile = emptyTile-size;
     if (!suppress) drawBoard();
   }
+  turns++;
 }
 
 
@@ -184,7 +196,6 @@ function updateTimer() {
 
 function stopTimer() {
   clearInterval(updateTimerInterval);
-  console.log(curTime, startTime);
   var time = (curTime.getTime() - startTime.getTime())/1000;
   times.push(time);
   inGame = false;
@@ -206,7 +217,7 @@ function update() {
 }
 
 function updateTimeHistory() {
-  times_div = document.getElementById("times");
+  times_div = document.getElementById("times");  
   while(times_div.firstChild) {
     times_div.removeChild(times_div.firstChild);
   }
@@ -221,6 +232,8 @@ function updateTimeHistory() {
 }
 
 function updateStats() {
+  //turns per second
+  tps = (turns / times[times.length-1]).toFixed(2);
   //best time
   if (times[times.length-1] < bestTime) {
     bestTime = times[times.length-1];
@@ -237,8 +250,9 @@ function updateStats() {
 }
 
 function writeStats() {
-
-  var string = "";
+  var string = "Tps: ";
+  string += tps;
+  string += "<br>";
   //best time
   string += "Best time: ";
   string += bestTime;
@@ -313,7 +327,7 @@ function range(start, end) {
 
 <body onload="init()" onkeydown="keypress(event.keyCode)">
 <div id="board"></div>
-<div id="timer"></div>
+<div id="timer">0.00</div>
 <h2>Times</h2>
 <div id="times"></div>
 <h2>Stats</h2>
