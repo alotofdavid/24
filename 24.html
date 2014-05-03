@@ -22,6 +22,14 @@ var times = [];
 function init() {
   loadBoard();
   drawBoard();
+  options = document.getElementById("options");
+  var string = "";
+  string += "<select id=\"size\"><option value=3>3</option><option value=4 selected=\"selected\">4</option>";
+  for (var i = 5; i<10; i++) { 
+    string += "<option value="+i+">"+i+"</option>";
+  }
+  string += "</select>";
+  options.innerHTML = string;
 }
 
 function startGame() {
@@ -79,7 +87,7 @@ function testShuffle() {
 
 function shuffle() { 
   var rand;
-  for (var i=0; i<1000; i++) {
+  for (var i=0; i<size*1000; i++) {
     rand = Math.floor(Math.random()*4);
     switch (rand) {
       case 0:
@@ -104,14 +112,14 @@ function shuffle() {
 */
 
 function keypress(code) { 
-  if (inspection && (code===37 || code===38 || code===39 || code ===40)) {
+  if (inspection && (code===37 || code===38 || code===87 || code===65 || code===39 || code===68 || code ===40 || code===83||code==74||code==75||code==76||code==77)) {
     startTimer();
     inspection = false;
   }
-  if (code===37) shiftLeft();
-  if (code===38) shiftUp();
-  if (code===39) shiftRight();
-  if (code===40) shiftDown();
+  if (code===37||code===65||code==74) shiftLeft();
+  if (code===38||code===87||code==73) shiftUp();
+  if (code===39||code===68||code==76) shiftRight();
+  if (code===40||code===83||code==75) shiftDown();
 
   if (code===32 && !inGame) startGame();
 }
@@ -312,14 +320,6 @@ function range(start, end) {
 <div id="stats" width="50%"></div>
 <h2>Options</h2>
 <div id="options">
-  Size
-<select id="size">
-  <option value=3>3</option>
-  <option value=4 selected="selected">4</option>
-  <option value=5>5</option>
-  <option value=6>6</option>
-  <option value=7>7</option>
-</select>
 </div>
 </body>
 </html>
